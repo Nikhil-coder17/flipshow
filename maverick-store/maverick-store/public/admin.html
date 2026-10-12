@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maverick Fashion - Admin</title>
+<style>
+*{box-sizing:border-box;margin:0}body{font-family:system-ui,Arial,sans-serif;background:#f3f1f6;color:#1a1030;padding:16px}
+h1{font-size:22px}h2{font-size:18px;margin:6px 0 12px}
+.wrap{max-width:1000px;margin:0 auto}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.bar h1{margin-right:auto}
+button,.btn{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;background:#1a1030;color:#fff;font-size:14px}
+button.ghost{background:#fff;color:#1a1030;border:1px solid #cfc8dc}button.red{background:#d8322b}button.green{background:#1a9b5b}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px #0001}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cfc8dc;border-radius:8px;font:inherit;background:#fff}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.tabs button{background:#fff;color:#1a1030;border:1px solid #cfc8dc}.tabs button.on{background:#1a1030;color:#fff}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #eee}
+.row img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#222}
+.row .t{flex:1;min-width:0}.row small{color:#6b6480}
+.off{opacity:.45}.msg{margin:8px 0;font-weight:700}.err{color:#d8322b}.ok{color:#1a9b5b}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;background:#ece6f6;font-size:12px;font-weight:700}
+.items{font-size:14px;margin:6px 0}
+</style></head><body><div class="wrap">
+
+<div id="login" class="card" style="max-width:380px;margin:60px auto">
+  <h1>Admin login</h1>
+  <label>Password</label><input id="pw" type="password" placeholder="Admin password" autocomplete="current-password">
+  <p id="lerr" class="msg err"></p>
+  <button id="lbtn" style="width:100%">Log in</button>
+</div>
+
+<div id="app" hidden>
+  <div class="bar"><h1>Maverick Fashion - Admin</h1><a class="btn ghost" href="/" target="_blank" style="text-decoration:none;background:#fff;color:#1a1030;border:1px solid #cfc8dc">View website</a><button class="ghost" id="out">Log out</button></div>
+  <p id="warn" class="msg err" hidden>You are still using the default password. Open the .env file and change ADMIN_PASSWORD.</p>
+  <div class="bar tabs"><button id="tp" class="on">Products</button><button id="to">Orders <span id="oc"></span></button></div>
+
+  <div id="pview">
+    <div class="card" id="form" hidden>
+      <h2 id="ft">Add product</h2>
+      <div class="grid2">
+        <div><label>Product name (shown under photo)</label><input id="fn" placeholder="Cotton Shirt"></div>
+        <div><label>Design / colour (small line under name)</label><input id="fv" placeholder="Black & Red"></div>
+        <div><label>Category (page name)</label><input id="fc" list="cats" placeholder="Shirts"><datalist id="cats"></datalist></div>
+        <div><label>Price (₹)</label><input id="fp" type="number" min="1" placeholder="649"></div>
+      </div>
+      <label>Description (optional - otherwise the category description is used)</label><textarea id="fd" rows="2"></textarea>
+      <div class="grid2">
+        <div><label>Photo (front and back together works best)</label><input id="ff" type="file" accept="image/*"><img id="prev" style="width:120px;margin-top:8px;border-radius:8px;display:none"></div>
+        <div><label>Photo background colour (fills any empty space)</label><input id="fb" type="color" value="#222222" style="height:44px"><label style="display:flex;gap:8px;align-items:center;margin-top:14px"><input id="fa" type="checkbox" checked style="width:auto"> Show on website</label></div>
+      </div>
+      <p id="fm" class="msg"></p>
+      <button id="save" class="green">Save product</button> <button id="cancel" class="ghost">Cancel</button>
+    </div>
+    <div class="card"><div class="bar"><h2 style="margin:0;margin-right:auto">All products <span id="pc"></span></h2><input id="ps" placeholder="Search" style="max-width:200px"><button id="add">+ Add product</button></div><div id="plist"></div></div>
+  </div>
+
+  <div id="oview" hidden><div class="card"><h2>Orders</h2><div id="olist"></div></div></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);let T=sessionStorage.getItem('mt')||'',P=[],O=[],editId=null,imgUrl='';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path,method='GET',data){const r=await fetch('/api/admin/'+path,{method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+T},body:data?JSON.stringify(data):undefined});const j=await r.json().catch(()=>({}));if(r.status===401&&path!=='login'){logout();throw new Error('Please log in again')}if(!r.ok)throw new Error(j.error||'Something went wrong');return j}
+function logout(){T='';sessionStorage.removeItem('mt');$('app').hidden=true;$('login').hidden=false}
+async function login(){$('lerr').textContent='';try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('pw').value})});const j=await r.json();if(!r.ok)throw new Error(j.error);T=j.token;sessionStorage.setItem('mt',T);$('warn').hidden=!j.defaultPassword;start()}catch(e){$('lerr').textContent=e.message}}
+$('lbtn').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};$('out').onclick=logout;
+async function start(){try{await load();$('login').hidden=true;$('app').hidden=false}catch(e){logout()}}
+async function load(){P=await api('products');O=await api('orders');drawP();drawO()}
+function drawP(){const q=$('ps').value.toLowerCase();$('pc').textContent='('+P.length+')';
+ $('cats').innerHTML=[...new Set(P.map(x=>x.c))].map(c=>`<option value="${esc(c)}">`).join('');
+ $('plist').innerHTML=P.filter(x=>(x.n+x.v+x.c).toLowerCase().includes(q)).map(x=>`<div class="row ${x.active===false?'off':''}"><img src="${esc(x.img)}"><div class="t"><b>${esc(x.n)}</b><br><small>${esc(x.v)} · ${esc(x.c)}</small><br><b>₹${x.p}</b> ${x.active===false?'<span class="pill">Hidden</span>':''}</div><button class="ghost" data-e="${x.id}">Edit</button><button class="red" data-d="${x.id}">Delete</button></div>`).join('')||'<p>No products yet.</p>'}
+function drawO(){const n=O.filter(o=>o.status==='New').length;$('oc').textContent=n?'('+n+' new)':'';
+ $('olist').innerHTML=O.map(o=>`<div class="row" style="align-items:flex-start"><div class="t"><b>${esc(o.id)}</b> <span class="pill">${esc(o.status)}</span> <span class="pill">${esc(o.payment)}${o.paid?' - PAID':''}</span><br><small>${new Date(o.createdAt).toLocaleString()}</small>
+ <div class="items">${o.items.map(i=>`${esc(i.name)} (${esc(i.variant)}) ${i.size?'· Size '+esc(i.size):''} × ${i.qty} = ₹${i.price*i.qty}`).join('<br>')}</div>
+ <b>Total ₹${o.total}</b><br><small>${esc(o.customer.name)} · ${esc(o.customer.phone)}${o.customer.email?'<br>'+esc(o.customer.email):''}<br>${esc(o.customer.address)}, ${esc(o.customer.city)} - ${esc(o.customer.pincode)}</small></div>
+ <div style="display:grid;gap:6px;min-width:140px"><select data-s="${esc(o.id)}">${['New','Confirmed','Packed','Shipped','Delivered','Cancelled'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
+ <button class="ghost" data-p="${esc(o.id)}">${o.paid?'Mark unpaid':'Mark paid'}</button><a class="btn green" style="text-decoration:none;text-align:center" target="_blank" href="https://wa.me/91${esc(o.customer.phone)}?text=${encodeURIComponent('Hello '+o.customer.name+', your Maverick Fashion order '+o.id+' (₹'+o.total+')')}">WhatsApp</a></div></div>`).join('')||'<p>No orders yet.</p>'}
+$('ps').oninput=drawP;
+$('tp').onclick=()=>{$('pview').hidden=false;$('oview').hidden=true;$('tp').classList.add('on');$('to').classList.remove('on')};
+$('to').onclick=async()=>{$('pview').hidden=true;$('oview').hidden=false;$('to').classList.add('on');$('tp').classList.remove('on');O=await api('orders');drawO()};
+function openForm(x){editId=x?x.id:null;$('ft').textContent=x?'Edit product':'Add product';$('fn').value=x?x.n:'';$('fv').value=x?x.v:'';$('fc').value=x?x.c:'';$('fp').value=x?x.p:'';$('fd').value=x?x.d||'':'';$('fb').value=x&&/^#[0-9a-f]{6}$/i.test(x.bg)?x.bg:'#222222';$('fa').checked=x?x.active!==false:true;imgUrl=x?x.img:'';$('ff').value='';$('prev').style.display=imgUrl?'block':'none';$('prev').src=imgUrl;$('fm').textContent='';$('form').hidden=false;$('form').scrollIntoView()}
+$('add').onclick=()=>openForm(null);$('cancel').onclick=()=>$('form').hidden=true;
+$('plist').onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.e)openForm(P.find(x=>x.id==b.dataset.e));
+ if(b.dataset.d&&confirm('Delete this product? This cannot be undone.')){await api('products/'+b.dataset.d,'DELETE');await load()}};
+$('olist').onchange=async e=>{if(e.target.dataset.s){await api('orders/'+e.target.dataset.s,'PUT',{status:e.target.value});await load()}};
+$('olist').onclick=async e=>{const b=e.target.closest('button');if(b&&b.dataset.p){const o=O.find(x=>x.id===b.dataset.p);await api('orders/'+o.id,'PUT',{paid:!o.paid});await load()}};
+// resize photo in the browser before uploading (keeps the website fast)
+$('ff').onchange=()=>{const f=$('ff').files[0];if(!f)return;const im=new Image();im.onload=async()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  $('fm').className='msg';$('fm').textContent='Uploading photo...';try{const r=await api('upload','POST',{dataUrl:c.toDataURL('image/jpeg',.82)});imgUrl=r.url;$('prev').src=imgUrl;$('prev').style.display='block';$('fm').textContent='Photo uploaded.';$('fm').className='msg ok'}catch(e){$('fm').textContent=e.message;$('fm').className='msg err'}};im.src=URL.createObjectURL(f)};
+$('save').onclick=async()=>{const d={n:$('fn').value,v:$('fv').value,c:$('fc').value,p:$('fp').value,d:$('fd').value,bg:$('fb').value,img:imgUrl,active:$('fa').checked};
+ try{await api(editId?'products/'+editId:'products',editId?'PUT':'POST',d);$('form').hidden=true;await load()}catch(e){$('fm').textContent=e.message;$('fm').className='msg err'}};
+if(T)start();
+</script></body></html>

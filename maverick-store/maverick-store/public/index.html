@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- MAVERICK FASHION - PAGE STRUCTURE (HTML)
+     Design/colours: style.css    Behaviour: app.js -->
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maverick Fashion — Printed Tees, Shirts & Trackwear</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css"></head><body>
+<header>
+ <div class="top">
+  <div class="logo" data-home><img class="mk" src="/logo.png" alt="Maverick Fashion logo"><span><b>MAVERICK</b> <b>FASHION</b></span></div>
+  <button class="loc" id="loc" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg><span>Deliver to<b id="locT">Update location</b></span><em>›</em></button>
+  <div class="sbox"><input id="q" placeholder="Search Maverick" aria-label="Search"><button>Search</button></div>
+  <div class="hl">Hello, <span id="hlN">sign in</span><b>Account &amp; Orders</b></div>
+  <button class="cartbtn" id="cb">Cart <i id="cn">0</i></button>
+ </div>
+ <nav id="nav"></nav>
+</header>
+
+<div class="wrap" id="home">
+ <section class="hero" id="hero"><div class="blob b1"></div><div class="blob b2"></div><canvas id="bgc" aria-hidden="true"></canvas><h1 id="hh" aria-label="Maverick Fashion"></h1><div class="fash" id="hf" aria-hidden="true"></div><p>Printed tees, shirts and trackwear made to be worn loud.</p><a class="hcta" href="#">Shop the collection</a></section>
+ <div class="mq" aria-hidden="true"><div id="mq"></div></div>
+ <div class="promos">
+  <div class="track" id="promos"></div>
+  <button class="arrow" id="nx" aria-label="Next offers">›</button>
+ </div>
+ <div class="tiles" id="tiles"></div>
+ <div class="head" id="shop"><h2 id="ttl">Trending now</h2><select id="so"><option value="0">Featured</option><option value="1">Price: low to high</option><option value="2">Price: high to low</option></select></div>
+ <div class="grid" id="grid"></div>
+</div>
+<div class="wrap" id="pdp" hidden></div>
+<nav class="bnav" aria-label="Main menu">
+ <button data-t="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+ <button data-t="cats"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>Categories</button>
+ <button data-t="acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>Account</button>
+ <button data-t="cart"><svg viewBox="0 0 24 24"><path d="M2 3h3l2.6 12.4a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6"/><circle cx="9.5" cy="20" r="1.5"/><circle cx="17.5" cy="20" r="1.5"/></svg>Cart<i id="cn2">0</i></button>
+</nav>
+<div class="locm" id="locm" hidden><div class="locs"><h3>Choose delivery location</h3><div class="mapbox" id="mapbox"><iframe id="map" title="Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allow="geolocation"></iframe><div class="mapph" id="mapph">Map shows here</div></div><button type="button" id="lg" class="lgps">◎ Use my current location</button><p id="lst" class="lst"></p><input id="lp" placeholder="Pincode (6 digits)" inputmode="numeric" maxlength="6"><input id="la" placeholder="City / area (optional)" maxlength="40"><p class="err" id="le"></p><div class="lbt"><button type="button" id="lx" class="lc">Cancel</button><button type="button" id="ls" class="ly">Save location</button></div></div></div>
+<div class="mp" id="mp" hidden><div class="mph"><button type="button" id="mpx" aria-label="Back">←</button><b>Select delivery location</b></div>
+<div class="mpm" id="mpmap"><div id="mptiles"></div><div class="mpn" id="mpnote" hidden>Map pictures cannot load on this preview page. They load on your real website. You can type your pincode instead.</div><svg class="mppin" viewBox="0 0 24 34"><path d="M12 33S2 21 2 12a10 10 0 0 1 20 0c0 9-10 21-10 21z" fill="#e8312a" stroke="#fff" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="#fff"/></svg>
+<div class="mpz"><button type="button" id="mpzi" aria-label="Zoom in">+</button><button type="button" id="mpzo" aria-label="Zoom out">−</button></div><button type="button" id="mpgps" class="mpg">◎ Current location</button><small class="mpat">© OpenStreetMap contributors</small></div>
+<div class="mpb"><p id="mpmsg">Move the map to place the pin on your location.</p><div class="mpa" id="mpaddr">Finding address...</div><button type="button" id="mpok" class="mpc" disabled>Confirm location</button><button type="button" id="mpt" class="mpl">Type pincode instead</button></div></div>
+<footer>© Maverick Fashion. All rights reserved.</footer>
+
+<aside id="drawer" aria-label="Cart"><h2>Your cart</h2><div id="items"></div><div class="tot"><span>Total</span><span id="tt">₹0</span></div><button class="co" onclick="openCheckout(cart)">Proceed to checkout</button><button class="chip" style="margin-top:8px" id="cl">Keep shopping</button></aside>
+
+<script type="module" src="/app.js"></script></body></html>
